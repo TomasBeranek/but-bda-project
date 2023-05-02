@@ -61,7 +61,7 @@ module.exports = {
             websockets: true, // Enable EventEmitter interface for web3 (default: false)
         },
 
-        // Useful for deploying to a public network. 
+        // Useful for deploying to a public network.
         // NB: It's important to wrap the provider as a function.
         // Faucet: https://fauceth.komputing.org/
         ropsten: {

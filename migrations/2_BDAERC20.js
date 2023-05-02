@@ -16,7 +16,7 @@ module.exports = function(deployer, network, accounts) {
     console.log('Deploying BDAERC20 to network', network);
 
     // anybody can deploy contract - e.g., accounts[0]
-    result = deployer.deploy(BDAERC20, conf.NAME, conf.SYMBOL, { from: accounts[0], gas: 2 * 1000 * 1000 }).then(() => {
+    result = deployer.deploy(BDAERC20, conf.NAME, conf.SYMBOL, { from: accounts[0], gas: 10 * 1000 * 1000 }).then(() => {
         console.log('Deployed BDAERC20 with address', BDAERC20.address);
         console.log("\t \\/== Default gas limit:", BDAERC20.class_defaults.gas);
     });
