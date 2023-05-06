@@ -3,6 +3,8 @@ pragma solidity 0.8.13;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
+import "@openzeppelin/contracts/utils/structs/EnumerableMap.sol";
+
 
 import "./Admins.sol";
 
@@ -10,35 +12,39 @@ import "./Admins.sol";
 contract BDAERC20 is ERC20 {
     // Admin contracts
     Admin public immutable adminMint;
-    Admin public immutable adminIDP;
-
-    // list of IDPs
-    EnumerableSet.AddressSet private IDPs;
+    AdminIDP public immutable adminIDP;
 
     // we cannot use external database to store admin/user addresses so it must be stored in contract -- operations might be very gas expensive
-    // TODO: Use EnumerableSet.AddressSet
-    mapping (address => uint) public isVerifiedUntil;
-    address[] public verifiedUsers;
+    EnumerableMap.AddressToUintMap private verifiedUntil;
 
     uint constant public verifyExpiration =  31536000; // 1 year in seconds
 
 
     // events
-    event VerificationSuccessful(address indexed user, address indexed idp);
-    event MintAdminAdded(address admin);
-    event MintAdminRemoved(address admin);
-    event IDPAdminAdded(address admin);
-    event IDPAdminRemoved(address admin);
-    event MintAdminAddSignature(address admin, address signer);
-    event MintAdminRemoveSignature(address admin, address signer);
-    event IDPAdminAddSignature(address admin, address signer);
-    event IDPAdminRemoveSignature(address admin, address signer);
+    event VerificationSuccessful(address indexed user, address indexed IDP);
+    event MintAdminAdded(address indexed admin);
+    event MintAdminRemoved(address indexed admin);
+    event IDPAdminAdded(address indexed admin);
+    event IDPAdminRemoved(address indexed admin);
+    event MintAdminAddSignature(address indexed admin, address indexed signer);
+    event MintAdminRemoveSignature(address indexed admin, address indexed signer);
+    event IDPAdminAddSignature(address indexed admin, address indexed signer);
+    event IDPAdminRemoveSignature(address indexed admin, address indexed signer);
+    event IDPAddSignature(address indexed IDP, address indexed signer);
+    event IDPAdded(address indexed IDP);
+    event IDPRemoveSignature(address indexed IDP, address indexed signer);
+    event IDPRemoved(address indexed IDP);
 
 
     constructor(string memory name, string memory symbol) ERC20(name, symbol) {
         // set msg.sender as the first admin in all admin roles
         adminMint = new Admin(msg.sender);
-        adminIDP = new Admin(msg.sender);
+        adminIDP = new AdminIDP(msg.sender);
+    }
+
+
+    function isVerified(address user) public view returns (bool) {
+        return EnumerableMap.contains(verifiedUntil, user) && (EnumerableMap.get(verifiedUntil, user) > block.timestamp);
     }
 
 
@@ -58,12 +64,11 @@ contract BDAERC20 is ERC20 {
 
         // get public key (address) of signer (IDP)
         address signer = ecrecover(_hashedMessage, v, r, s);
-        require(EnumerableSet.contains(IDPs, signer), "Message was not signed by a valid IDP!");
+        require(adminIDP.isIDP(signer), "Message was not signed by a valid IDP!");
 
         // message is correct, signature is of valid IDP
         // if user is already verified, it will only extend its experiation
-        isVerifiedUntil[msg.sender] = block.timestamp + verifyExpiration;
-        verifiedUsers.push(msg.sender);
+        EnumerableMap.set(verifiedUntil, msg.sender, block.timestamp + verifyExpiration);
         emit VerificationSuccessful(msg.sender, signer);
     }
 
@@ -143,5 +148,39 @@ contract BDAERC20 is ERC20 {
 
     function isIDPAdmin(address addr) public view returns (bool) {
         return adminIDP.isAdmin(addr);
+    }
+
+
+    function isIDP(address addr) public view returns (bool) {
+        return adminIDP.isIDP(addr);
+    }
+
+
+    function signAddingIDP(address addr) public {
+        require(adminIDP.isAdmin(msg.sender), "IDP admin role required!");
+
+        if (adminIDP.signAddingIDP(addr, msg.sender)) {
+            emit IDPAddSignature(addr, msg.sender);
+            emit IDPAdded(addr);
+        } else {
+            emit IDPAddSignature(addr, msg.sender);
+        }
+    }
+
+
+    function signRemovingIDP(address addr) public {
+        require(adminIDP.isAdmin(msg.sender), "IDP admin role required!");
+
+        if (adminIDP.signRemovingIDP(addr, msg.sender)) {
+            emit IDPRemoveSignature(addr, msg.sender);
+            emit IDPRemoved(addr);
+        } else {
+            emit IDPRemoveSignature(addr, msg.sender);
+        }
+    }
+
+
+    function getIDPs() public view returns(address[] memory){
+        return adminIDP.getIDPs();
     }
 }

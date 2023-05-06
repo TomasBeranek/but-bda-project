@@ -8,8 +8,10 @@ const BN = web3.utils.BN;
 
 const GAS_PRICE = 20000000000; // in Wei
 
-var IDPAddress = '0x2E3167f191D4c98fE8f744D55f43CAF303f9c1AB';
-var IDPPrivateKey = '0x5b23605f0e859b228a7a20452bd5c1d1b89b1928adb05f2f885c03032e0ccf3d';
+var IDP1Address = '0x2E3167f191D4c98fE8f744D55f43CAF303f9c1AB';
+var IDP1PrivateKey = '0x5b23605f0e859b228a7a20452bd5c1d1b89b1928adb05f2f885c03032e0ccf3d';
+var IDP2Address = '0x5e36A5756ea287acBFf852D99d357Bd8524C7B1f';
+var IDP2PrivateKey = '0xf1e1f9bcbb533418fef089ba4c6b700e4473d7cdfde56b2310faedc703aaf577';
 
 // to test for expected revert message
 const PREFIX = "VM Exception while processing transaction: revert ";
@@ -33,6 +35,17 @@ const equalsSet = (xs, ys) =>
   xs.size === ys.size &&
   [...xs].every((x) => ys.has(x));
 
+
+async function signMessage(accountAddr, privateKey) {
+    // it needs to be in lower case, because solidity doesnt save address (msg.sender) in mixed case (mixed case == checksum)
+    var message = accountAddr.toLowerCase();
+
+    // hash message
+    var hashedMessage = web3.utils.soliditySha3(message);
+
+    // sign message (hash of address of user)
+    return await web3.eth.accounts.sign(hashedMessage, privateKey);
+}
 
 contract(' TEST SUITE 1 [ Admin Management ]', function(accounts) {
     // accounts[0] - owner of token
@@ -207,47 +220,164 @@ contract(' TEST SUITE 1 [ Admin Management ]', function(accounts) {
 
 });
 
-// contract(' TEST SUITE 1 [ Verify Users ]', function(accounts) {
-//     // accounts[0] - owner of token
-//     // accounts[1] - regular user
+contract(' TEST SUITE 1 [ IDP Management ]', function(accounts) {
+    // accounts[0] - owner of token, mint/idp admin
+    // accounts[1] - regular user
+    // accounts[2] - idp admin
+    // accounts[3] - regular user
+    // accounts[4] - regular user
 
-//     it("Signing with non existent IDP", async() => {
-//         contract = await BDAERC20.deployed();
-//         console.log(contract.address);
-//         // it needs to be in lower case, because solidity doesnt save address (msg.sender) in mixed case (mixed case == checksum)
-//         var message = accounts[1].toLowerCase();
+    it("Try to verify user with empty IDP list", async() => {
+        let token = await BDAERC20.deployed();
 
-//         // hash message
-//         var hashedMessage = web3.utils.soliditySha3(message);
+        // check that IDP list is empty
+        var IDPs = await token.getIDPs.call({from: accounts[1]});
+        assert(equals(IDPs, []), 'IDP list should be empty!');
 
-//         // sign message (hash of address of user)
-//         var sig = await web3.eth.accounts.sign(hashedMessage, IDPPrivateKey);
+        // create verification message
+        var sig = await signMessage(accounts[1], IDP1PrivateKey);
 
-//         // check for correct revert being called
-//         await tryCatch(contract.verify.call(sig.messageHash, sig.v, sig.r, sig.s, {from: accounts[1]}), "Message was not signed by a valid IDP!");
-//     });
+        await tryCatch(token.verify(sig.messageHash, sig.v, sig.r, sig.s, {from: accounts[1]}), "Message was not signed by a valid IDP!");
+    });
 
-//     it("Signing with existent IDP", async() => {
-//         contract = await BDAERC20.deployed();
-//         console.log(contract.address);
+    it("Add IDP without IDPAdmin", async() => {
+        let token = await BDAERC20.deployed();
 
+        await tryCatch(token.signAddingIDP(IDP1Address, {from: accounts[2]}), "IDP admin role required!");
 
-//         // it needs to be in lower case, because solidity doesnt save address (msg.sender) in mixed case (mixed case == checksum)
-//         var message = accounts[1].toLowerCase();
+        // check that IDP list is empty
+        var IDPs = await token.getIDPs.call({from: accounts[1]});
+        assert(equals(IDPs, []), 'IDP list should be empty!');
+    });
 
-//         // hash message
-//         var hashedMessage = web3.utils.soliditySha3(message);
+    it("Add IDP with IDPAdmin", async() => {
+        let token = await BDAERC20.deployed();
 
-//         // sign message (hash of address of user)
-//         var sig = await web3.eth.accounts.sign(hashedMessage, IDPPrivateKey);
+        var tx = await token.signAddingIDP(IDP1Address, {from: accounts[0]});
+        var event = tx.logs.find((log) => log.event === "IDPAddSignature");
+        assert(event.args.IDP === IDP1Address, 'IDP is different from IDP1Address!');
+        assert(event.args.signer === accounts[0], 'Signer is different from accounts[0]!');
 
-//         var tx = await contract.verify.call(sig.messageHash, sig.v, sig.r, sig.s, {from: accounts[1]});
+        var event = tx.logs.find((log) => log.event === "IDPAdded");
+        assert(event.args.IDP === IDP1Address, 'IDP is different from IDP1Address!');
 
-//         truffleAssert.eventEmitted(tx, 'VerificationSuccessful', (ev) => {
-//             return ev.user === accounts[1] && ev.idp === IDPAddress;
-//         });
-//     });
-// });
+        // check that IDP list contains only IDP1Address
+        var IDPs = await token.getIDPs.call({from: accounts[1]});
+        assert(equals(IDPs, [IDP1Address]), 'IDP list should contain only IDP1Address!');
+    });
+
+    it("Signing with non existent IDP", async() => {
+        let token = await BDAERC20.deployed();
+
+        // create verification message
+        var sig = await signMessage(accounts[1], IDP2PrivateKey);
+
+        await tryCatch(token.verify(sig.messageHash, sig.v, sig.r, sig.s, {from: accounts[1]}), "Message was not signed by a valid IDP!");
+    });
+
+    it("Signing with valid IDP", async() => {
+        let token = await BDAERC20.deployed();
+
+        // create verification message
+        var sig = await signMessage(accounts[1], IDP1PrivateKey);
+
+        var tx = await token.verify(sig.messageHash, sig.v, sig.r, sig.s, {from: accounts[1]});
+        var event = tx.logs.find((log) => log.event === "VerificationSuccessful");
+        assert(event.args.user === accounts[1], 'User is different from accounts[1]!');
+        assert(event.args.IDP === IDP1Address, 'IDP is different from IDP1Address!');
+
+        // check if accounts[1] is really verified now
+        assert(await token.isVerified.call(accounts[1], {from: accounts[1]}), 'accounts[1] should be verified user!');
+    });
+
+    it("Add new IDP with IDPAdmin consensus", async() => {
+        let token = await BDAERC20.deployed();
+
+        // add second IDPAdmin
+        var tx = await token.signAddingIDPAdmin(accounts[2], {from: accounts[0]});
+
+        var event = tx.logs.find((log) => log.event === "IDPAdminAddSignature");
+        assert(event.args.admin === accounts[2], 'Admin is different from accounts[2]!');
+        assert(event.args.signer === accounts[0], 'Signer is different from accounts[0]!');
+
+        var event = tx.logs.find((log) => log.event === "IDPAdminAdded");
+        assert(event.args.admin === accounts[2], 'Added admin is different from accounts[2]!');
+
+        // add second IDP
+        var tx = await token.signAddingIDP(IDP2Address, {from: accounts[2]});
+        var event = tx.logs.find((log) => log.event === "IDPAddSignature");
+        assert(event.args.IDP === IDP2Address, 'IDP is different from IDP2Address!');
+        assert(event.args.signer === accounts[2], 'Signer is different from accounts[2]!');
+
+        var tx = await token.signAddingIDP(IDP2Address, {from: accounts[0]});
+        var event = tx.logs.find((log) => log.event === "IDPAddSignature");
+        assert(event.args.IDP === IDP2Address, 'IDP is different from IDP2Address!');
+        assert(event.args.signer === accounts[0], 'Signer is different from accounts[0]!');
+
+        var event = tx.logs.find((log) => log.event === "IDPAdded");
+        assert(event.args.IDP === IDP2Address, 'IDP is different from IDP2Address!');
+
+        // check if IDP list contains both IDPs
+        var IDPs = await token.getIDPs.call({from: accounts[8]});
+        assert(equals(IDPs, [IDP1Address, IDP2Address]), 'IDP list should contain both IDP1Address and IDP2Address!');
+    });
+
+    it("Signing with new IDP", async() => {
+        let token = await BDAERC20.deployed();
+
+        // create verification message
+        var sig = await signMessage(accounts[3], IDP2PrivateKey);
+
+        var tx = await token.verify(sig.messageHash, sig.v, sig.r, sig.s, {from: accounts[3]});
+        var event = tx.logs.find((log) => log.event === "VerificationSuccessful");
+        assert(event.args.user === accounts[3], 'User is different from accounts[3]!');
+        assert(event.args.IDP === IDP2Address, 'IDP is different from IDP2Address!');
+
+        // check if accounts[1] is really verified now
+        assert(await token.isVerified.call(accounts[1], {from: accounts[1]}), 'accounts[1] should be verified user!');
+    });
+
+    it("Remove first IDP", async() => {
+        let token = await BDAERC20.deployed();
+
+        // remove first IDP
+        var tx = await token.signRemovingIDP(IDP1Address, {from: accounts[2]});
+        var event = tx.logs.find((log) => log.event === "IDPRemoveSignature");
+        assert(event.args.IDP === IDP1Address, 'IDP is different from IDP1Address!');
+        assert(event.args.signer === accounts[2], 'Signer is different from accounts[2]!');
+
+        var tx = await token.signRemovingIDP(IDP1Address, {from: accounts[0]});
+        var event = tx.logs.find((log) => log.event === "IDPRemoveSignature");
+        assert(event.args.IDP === IDP1Address, 'IDP is different from IDP1Address!');
+        assert(event.args.signer === accounts[0], 'Signer is different from accounts[0]!');
+
+        var event = tx.logs.find((log) => log.event === "IDPRemoved");
+        assert(event.args.IDP === IDP1Address, 'IDP is different from IDP1Address!');
+
+        // check if IDP list contains only IDP2Address
+        var IDPs = await token.getIDPs.call({from: accounts[0]});
+        assert(equals(IDPs, [IDP2Address]), 'IDP list should contain only IDP2Address!');
+    });
+
+    it("Signing with removed IDP", async() => {
+        let token = await BDAERC20.deployed();
+
+        // create verification message
+        var sig = await signMessage(accounts[4], IDP1PrivateKey);
+
+        await tryCatch(token.verify(sig.messageHash, sig.v, sig.r, sig.s, {from: accounts[4]}), "Message was not signed by a valid IDP!");
+    });
+
+    it("Try to verify with incorrect signature", async() => {
+        let token = await BDAERC20.deployed();
+
+        // create verification message from accounts[6]
+        var sig = await signMessage(accounts[6], IDP1PrivateKey);
+
+        // send message + signature from accounts[7]
+        await tryCatch(token.verify(sig.messageHash, sig.v, sig.r, sig.s, {from: accounts[7]}), "Message hash is incorrect!");
+    });
+});
 
 
 // contract(' TEST SUITE 2 [ Minting ]', function(accounts) {
