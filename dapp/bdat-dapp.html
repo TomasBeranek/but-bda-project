@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>BDAT DAPP</title>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+        <link rel="stylesheet" type="text/css" href="styles.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"/>
+        <link rel="icon" type="image/x-icon" href="data:image/x-icon;,">
+    </head>
+
+    <body>
+    <script src="https://cdn.jsdelivr.net/npm/web3@1.5.2/dist/web3.min.js"></script>
+    <script src="script.js"></script>
+    <section class="section">
+        <div class="popup" style="display: none;">
+            <div class="popup-content">
+                <p id="popup-message"></p>
+            </div>
+        </div>
+
+        <div class="container is-max-desktop">
+            <div class="dropdown-container mb-6">
+                <div class="dropdown-label">
+                    <label class="label account-label">Account address:</label>
+                </div>
+                <div class="dropdown-label ml-5">
+                    <label id="account-addr" class="label account-label"></label>
+                </div>
+            </div>
+
+
+            <div class="tabs is-centered is-medium">
+                <ul>
+                    <li onclick="tabHandler(event)" id="user-tab" class="roles is-active"><a>User</a></li>
+                    <li onclick="tabHandler(event)" id="mint-admin-tab" class="roles" style="display: none;"><a>Mint Admin</a></li>
+                    <li onclick="tabHandler(event)" id="idp-admin-tab" class="roles" style="display: none;"><a>IDP Admin</a></li>
+                    <li onclick="tabHandler(event)" id="restriction-admin-tab" class="roles" style="display: none;"><a>Restr Admin</a></li>
+                </ul>
+            </div>
+
+            <div id="user" class="mb-4" style="display: none;">
+                <h1 class="mb-2">Account status</h1>
+                <form class="box is-horizontal">
+                    <div class="field-body is-grouped is-centered">
+                        <div class="field" style="width: 8%;">
+                            <label class="label">Balance</label>
+                            <div class="control is-expanded">
+                                <h3 id="account-balance">-</h3>
+                            </div>
+                        </div>
+
+                        <div class="field" style="width: 15%;">
+                            <label class="label">Transfered today</label>
+                            <div class="control is-expanded">
+                                <h3 id="account-transfered-today">-</h3>
+                            </div>
+                        </div>
+
+                        <div class="field" style="width: 18%;">
+                            <label class="label">Transfer limit per day</label>
+                            <div class="control is-expanded">
+                                <h3 id="account-transfer-limit">-</h3>
+                            </div>
+                        </div>
+
+                        <div class="field" style="width: 15%;">
+                            <label class="label">Verified until</label>
+                            <div class="control is-expanded">
+                                <h2 id="verified-until">24.12.2024 16:38 &thinsp;<i class="fas fa-check has-text-success"></i></h2>
+                            </div>
+                        </div>
+
+                        <div class="field mt-2" style="width: 15%;">
+                            <div class="control confirm-button">
+                            <button onclick="verifyUser()" class="button is-primary" id="verify-button">Extend expiration</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div id="user-send-tokens" class="mb-4" style="display: none;">
+                <h1 class="mb-2">Send tokens</h1>
+                <form class="box is-horizontal">
+                    <div class="field-body is-grouped is-centered">
+                        <div class="field" style="width: 60%;">
+                            <label class="label">Reciever address</label>
+                            <div class="control is-expanded">
+                            <input id="transfer-addr" class="input" type="text" placeholder="e.g. 0xE9F96b6de7D091E169bFD8450b3a182AAe5423d6">
+                            </div>
+                        </div>
+
+                        <div class="field ml-5" style="width: 30%;">
+                            <label class="label">Amount</label>
+                            <div class="control">
+                            <input id="transfer-amount" class="input is-narrow" type="number" min="0" step="any" placeholder="e.g. 10">
+                            </div>
+                        </div>
+
+                        <div class="field ml-4" style="width: 15%;">
+                            <label class="label">&zwnj;</label>
+                            <div class="control confirm-button">
+                            <button onclick="userTransfer()" class="button is-primary">Send</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div id="user-send-tokens" class="mb-4" style="display: none;">
+                <h1 class="mb-2">Approve delegation</h1>
+                <form class="box is-horizontal">
+                    <div class="field-body is-grouped is-centered">
+                        <div class="field" style="width: 60%;">
+                            <label class="label">Delegate address</label>
+                            <div class="control is-expanded">
+                            <input id="delegate-addr" class="input" type="text" placeholder="e.g. 0xE9F96b6de7D091E169bFD8450b3a182AAe5423d6">
+                            </div>
+                        </div>
+
+                        <div class="field ml-5" style="width: 30%;">
+                            <label class="label">Amount</label>
+                            <div class="control">
+                            <input id="delegate-amount" class="input is-narrow" type="number" min="0" step="any" placeholder="e.g. 10">
+                            </div>
+                        </div>
+
+                        <div class="field ml-4" style="width: 15%;">
+                            <label class="label">&zwnj;</label>
+                            <div class="control confirm-button">
+                            <button onclick="approveDelegation()" class="button is-primary">Approve</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div id="user-send-tokens" class="mb-4" style="display: none;">
+                <h1 class="mb-2">Delegation transfer</h1>
+                <form class="box is-horizontal">
+                    <div class="field-body is-grouped is-centered">
+                        <div class="field" style="width: 60%;">
+                            <label class="label">Owner address</label>
+                            <div class="control is-expanded">
+                            <input id="sender-addr" class="input" type="text" placeholder="e.g. 0xE9F96b6de7D091E169bFD8450b3a182AAe5423d6">
+                            </div>
+                        </div>
+
+                        <div class="field ml-5" style="width: 30%;">
+                            <label class="label">Allowance</label>
+                            <div class="control is-expanded">
+                                <h3 id="allowance">-</h3>
+                            </div>
+                        </div>
+
+                        <div class="field ml-4" style="width: 15%;">
+                            <label class="label">&zwnj;</label>
+                            <div class="control confirm-button">
+                            <button onclick="getAllowance()" class="button is-primary">Get</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="field-body is-grouped is-centered mt-4">
+                        <div class="field" style="width: 60%;">
+                            <label class="label">Reciever address</label>
+                            <div class="control is-expanded">
+                            <input id="reciever-addr" class="input" type="text" placeholder="e.g. 0xE9F96b6de7D091E169bFD8450b3a182AAe5423d6">
+                            </div>
+                        </div>
+
+                        <div class="field ml-5" style="width: 30%;">
+                            <label class="label">Amount</label>
+                            <div class="control">
+                            <input id="delegate-transfer-amount" class="input is-narrow" type="number" min="0" step="any" placeholder="e.g. 10">
+                            </div>
+                        </div>
+
+                        <div class="field ml-4" style="width: 15%;">
+                            <label class="label">&zwnj;</label>
+                            <div class="control confirm-button">
+                            <button onclick="sendDelegationTransfer()" class="button is-primary">Send</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div id="mint-admin" class="mb-4" style="display: none;">
+                <h1 class="mb-2">Account status</h1>
+                <form class="box is-horizontal">
+                    <div class="field-body is-grouped is-centered">
+                        <div class="field" style="width: 10%;">
+                            <label class="label">Minted today</label>
+                            <div class="control is-expanded">
+                                <h3 id="mint-today"></h3>
+                            </div>
+                        </div>
+
+                        <div class="field" style="width: 15%;">
+                            <label class="label">Remaining minting</label>
+                            <div class="control is-expanded">
+                                <h3 id="mint-left"></h3>
+                            </div>
+                        </div>
+
+                        <div class="field" style="width: 20%;">
+                            <label class="label">Maximum minting per day</label>
+                            <div class="control is-expanded">
+                                <h3 id="mint-tmax"></h3>
+                            </div>
+                        </div>
+
+                        <div class="field ml-5" style="width: 20%;">
+                            <label class="label">Change maximum</label>
+                            <div class="control">
+                            <input id="change-tmax" class="input is-narrow" type="number" min="0" step="any" placeholder="e.g. 10">
+                            </div>
+                        </div>
+
+                        <div class="field ml-4" style="width: 10%;">
+                            <label class="label">&zwnj;</label>
+                            <div class="control confirm-button">
+                            <button onclick="changeTMAX()" class="button is-primary">Change</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div id="mint-admin" class="mb-4" style="display: none;">
+                <h1 class="mb-2">Mint tokens</h1>
+                <form class="box is-horizontal">
+                    <div class="field-body is-grouped is-centered mb-2" id="mint-account">
+                        <div class="field" style="width: 60%;">
+                            <label class="label">Reciever address</label>
+                            <div class="control is-expanded">
+                            <input id="mint-addr" class="input" type="text" placeholder="e.g. 0xE9F96b6de7D091E169bFD8450b3a182AAe5423d6">
+                            </div>
+                        </div>
+
+                        <div class="field ml-5" style="width: 30%;">
+                            <label class="label">Amount</label>
+                            <div class="control">
+                            <input id="mint-amount" class="input is-narrow" type="number" min="0" step="any" placeholder="e.g. 10">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="field-body is-grouped is-centered">
+                        <div class="field" style="width: 30%;">
+                            <label class="label">&zwnj;</label>
+                            <div class="control confirm-button">
+                            <button onclick="addMintAccount()" class="button is-primary"><div id="add-button">+</div></button>
+                            </div>
+                        </div>
+                        <div class="field" style="width: 30%;">
+                            <label class="label">&zwnj;</label>
+                            <div class="control confirm-button">
+                            <button onclick="removeMintAccount()" class="button is-danger"><i class="fa fa-trash-alt"></i></button>
+                            </div>
+                        </div>
+                        <div class="field ml-4" style="width: 12%;">
+                            <label class="label">&zwnj;</label>
+                            <div class="control confirm-button">
+                            <button onclick="adminMint()" class="button is-primary">Mint</button>
+                            </div>
+                        </div>
+                        <div class="field ml-4" style="width: 18%;">
+                            <label class="label">&zwnj;</label>
+                            <div class="control confirm-button">
+                            <button onclick="adminMintConsensus()" class="button is-primary">Consensus Mint</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div id="mint-admin" class="mb-4" style="display: none;">
+                <h1 class="mb-2">Add mint admin</h1>
+                <form class="box is-horizontal">
+                    <div class="field-body is-grouped is-centered">
+                        <div class="field" style="width: 60%;">
+                            <label class="label">New mint admin address</label>
+                            <div class="control is-expanded">
+                            <input id="add-mint-admin-addr" class="input" type="text" placeholder="e.g. 0xE9F96b6de7D091E169bFD8450b3a182AAe5423d6">
+                            </div>
+                        </div>
+
+                        <div class="field ml-4" style="width: 15%;">
+                            <label class="label">&zwnj;</label>
+                            <div class="control confirm-button">
+                            <button onclick="addMintAdmin()" class="button is-primary">Add new admin</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div id="mint-admin" class="mb-4" style="display: none;">
+                <h1 class="mb-2">Remove mint admin</h1>
+                <form class="box is-horizontal">
+                    <div class="field-body is-grouped is-centered">
+                        <div class="field" style="width: 60%;">
+                            <label class="label">Remove mint admin address</label>
+                            <div class="control is-expanded">
+                            <input id="remove-mint-admin-addr" class="input" type="text" placeholder="e.g. 0xE9F96b6de7D091E169bFD8450b3a182AAe5423d6">
+                            </div>
+                        </div>
+
+                        <div class="field ml-4" style="width: 15%;">
+                            <label class="label">&zwnj;</label>
+                            <div class="control confirm-button">
+                            <button onclick="removeMintAdmin()" class="button is-danger">Remove admin</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div id="idp-admin" class="mb-4" style="display: none;">
+                <h1 class="mb-2">Add IDP</h1>
+                <form class="box is-horizontal">
+                    <div class="field-body is-grouped is-centered">
+                        <div class="field" style="width: 60%;">
+                            <label class="label">New IDP address</label>
+                            <div class="control is-expanded">
+                            <input id="add-idp-addr" class="input" type="text" placeholder="e.g. 0xE9F96b6de7D091E169bFD8450b3a182AAe5423d6">
+                            </div>
+                        </div>
+
+                        <div class="field ml-4" style="width: 15%;">
+                            <label class="label">&zwnj;</label>
+                            <div class="control confirm-button">
+                            <button onclick="addIDP()" class="button is-primary">Add new IDP</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div id="idp-admin" class="mb-4" style="display: none;">
+                <h1 class="mb-2">Remove IDP</h1>
+                <form class="box is-horizontal">
+                    <div class="field-body is-grouped is-centered">
+                        <div class="field" style="width: 60%;">
+                            <label class="label">Remove IDP address</label>
+                            <div class="control is-expanded">
+                            <input id="remove-idp-addr" class="input" type="text" placeholder="e.g. 0xE9F96b6de7D091E169bFD8450b3a182AAe5423d6">
+                            </div>
+                        </div>
+
+                        <div class="field ml-4" style="width: 15%;">
+                            <label class="label">&zwnj;</label>
+                            <div class="control confirm-button">
+                            <button onclick="removeIDP()" class="button is-danger">Remove IDP</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div id="idp-admin" class="mb-4" style="display: none;">
+                <h1 class="mb-2">Approve user</h1>
+                <form class="box is-horizontal">
+                    <div class="field-body is-grouped is-centered">
+                        <div class="field" style="width: 60%;">
+                            <label class="label">User address to approve</label>
+                            <div class="control is-expanded">
+                            <input id="approve-user" class="input" type="text" placeholder="e.g. 0xE9F96b6de7D091E169bFD8450b3a182AAe5423d6">
+                            </div>
+                        </div>
+
+                        <div class="field ml-4" style="width: 15%;">
+                            <label class="label">&zwnj;</label>
+                            <div class="control confirm-button">
+                            <button onclick="approveUser()" class="button is-primary">Approve</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div id="idp-admin" class="mb-4" style="display: none;">
+                <h1 class="mb-2">Revoke user</h1>
+                <form class="box is-horizontal">
+                    <div class="field-body is-grouped is-centered">
+                        <div class="field" style="width: 60%;">
+                            <label class="label">User address to revoke</label>
+                            <div class="control is-expanded">
+                            <input id="revoke-user" class="input" type="text" placeholder="e.g. 0xE9F96b6de7D091E169bFD8450b3a182AAe5423d6">
+                            </div>
+                        </div>
+
+                        <div class="field ml-4" style="width: 15%;">
+                            <label class="label">&zwnj;</label>
+                            <div class="control confirm-button">
+                            <button onclick="revokeUser()" class="button is-danger">Revoke</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div id="idp-admin" class="mb-4" style="display: none;">
+                <h1 class="mb-2">Add IDP admin</h1>
+                <form class="box is-horizontal">
+                    <div class="field-body is-grouped is-centered">
+                        <div class="field" style="width: 60%;">
+                            <label class="label">New IDP admin address</label>
+                            <div class="control is-expanded">
+                            <input id="add-idp-admin-addr" class="input" type="text" placeholder="e.g. 0xE9F96b6de7D091E169bFD8450b3a182AAe5423d6">
+                            </div>
+                        </div>
+
+                        <div class="field ml-4" style="width: 15%;">
+                            <label class="label">&zwnj;</label>
+                            <div class="control confirm-button">
+                            <button onclick="addIDPAdmin()" class="button is-primary">Add new admin</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div id="idp-admin" class="mb-4" style="display: none;">
+                <h1 class="mb-2">Remove IDP admin</h1>
+                <form class="box is-horizontal">
+                    <div class="field-body is-grouped is-centered">
+                        <div class="field" style="width: 60%;">
+                            <label class="label">Remove IDP admin address</label>
+                            <div class="control is-expanded">
+                            <input id="remove-idp-admin-addr" class="input" type="text" placeholder="e.g. 0xE9F96b6de7D091E169bFD8450b3a182AAe5423d6">
+                            </div>
+                        </div>
+
+                        <div class="field ml-4" style="width: 15%;">
+                            <label class="label">&zwnj;</label>
+                            <div class="control confirm-button">
+                            <button onclick="removeIDPAdmin()" class="button is-danger">Remove admin</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div id="restriction-admin" class="mb-4" style="display: none;">
+                <h1 class="mb-2">Change user transfer limit</h1>
+                <form class="box is-horizontal">
+                    <div class="field-body is-grouped is-centered">
+                        <div class="field" style="width: 60%;">
+                            <label class="label">User address</label>
+                            <div class="control is-expanded">
+                            <input id="transfer-limit-addr" class="input" type="text" placeholder="e.g. 0xE9F96b6de7D091E169bFD8450b3a182AAe5423d6">
+                            </div>
+                        </div>
+
+                        <div class="field ml-5" style="width: 30%;">
+                            <label class="label">New limit</label>
+                            <div class="control">
+                            <input id="new-transfer-limit" class="input is-narrow" type="number" min="0" step="any" placeholder="e.g. 50">
+                            </div>
+                        </div>
+
+                        <div class="field ml-4" style="width: 15%;">
+                            <label class="label">&zwnj;</label>
+                            <div class="control confirm-button">
+                            <button onclick="changeTransferLimit()" class="button is-primary">Change</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div id="restriction-admin" class="mb-4" style="display: none;">
+                <h1 class="mb-2">Add restriction admin</h1>
+                <form class="box is-horizontal">
+                    <div class="field-body is-grouped is-centered">
+                        <div class="field" style="width: 60%;">
+                            <label class="label">New restriction admin address</label>
+                            <div class="control is-expanded">
+                            <input id="add-restr-admin-addr" class="input" type="text" placeholder="e.g. 0xE9F96b6de7D091E169bFD8450b3a182AAe5423d6">
+                            </div>
+                        </div>
+
+                        <div class="field ml-4" style="width: 15%;">
+                            <label class="label">&zwnj;</label>
+                            <div class="control confirm-button">
+                            <button onclick="addRestrAdmin()" class="button is-primary">Add new admin</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div id="restriction-admin" class="mb-4" style="display: none;">
+                <h1 class="mb-2">Remove restriction admin</h1>
+                <form class="box is-horizontal">
+                    <div class="field-body is-grouped is-centered">
+                        <div class="field" style="width: 60%;">
+                            <label class="label">Remove restriction admin address</label>
+                            <div class="control is-expanded">
+                            <input id="remove-restr-admin-addr" class="input" type="text" placeholder="e.g. 0xE9F96b6de7D091E169bFD8450b3a182AAe5423d6">
+                            </div>
+                        </div>
+
+                        <div class="field ml-4" style="width: 15%;">
+                            <label class="label">&zwnj;</label>
+                            <div class="control confirm-button">
+                            <button onclick="removeRestrAdmin()" class="button is-danger">Remove admin</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div class="dropdown-container mt-6">
+                <div class="dropdown-label">
+                    <label class="label account-label">List of addresses belonging to role </label>
+                </div>
+                <div hidden class="dropdown" style="width: 25%;">
+                    <div class="dropdown-trigger">
+                        <button class="button" aria-haspopup="true" aria-controls="dropdown-menu" onclick="toggleDropdown(this)">
+                            <span id="dropdown-text">Mint admin</span>
+                            <span class="icon is-small">
+                                <i class="fas fa-angle-down" aria-hidden="true"></i>
+                            </span>
+                        </button>
+                    </div>
+                    <div class="dropdown-menu" id="dropdown-menu" role="menu">
+                        <div class="dropdown-content" id="addresses-menu">
+                            <a onclick="dropdownItemHandler(event)" class="dropdown-item">Mint admin</a>
+                            <a onclick="dropdownItemHandler(event)" class="dropdown-item">IDP admin</a>
+                            <a onclick="dropdownItemHandler(event)" class="dropdown-item">Restr admin</a>
+                            <a onclick="dropdownItemHandler(event)" class="dropdown-item">Identity provider</a>
+                            <a onclick="dropdownItemHandler(event)" class="dropdown-item">Verified user</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="box mt-5">
+                <div class="outer-table" style="text-align: center;">
+                    <div class="inner-table" style="display: inline-block;">
+                        <table class="table is-centered" style="text-align: center;">
+                            <thead>
+                                <tr>
+                                    <th>Order</th>
+                                    <th>Address</th>
+                                </tr>
+                            </thead>
+                            <tbody id="table-addrs">
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+    </div>
+    </section>
+    </body>
+</html>

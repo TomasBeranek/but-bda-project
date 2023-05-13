@@ -1,0 +1,109 @@
+h1 {
+    font-size: 22px;
+    font-weight: bold;
+}
+
+.confirm-button {
+    text-align: center;
+}
+
+.dropdown-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}
+
+.dropdown-label {
+    margin-right: 1rem;
+}
+
+.label {
+    font-weight: bold;
+}
+
+.dropdown {
+    position: relative;
+    width: 50%;
+}
+
+.dropdown-trigger {
+    width: 100%;
+}
+
+.dropdown-trigger button {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+}
+
+.dropdown-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 1;
+    display: none;
+    width: 100%;
+}
+
+.dropdown.is-active .dropdown-menu {
+    display: block;
+}
+
+.account-label {
+    font-size: 25px;
+}
+
+#add-button {
+    font-size: 30px;
+    font-weight: bold;
+}
+
+#error-msg {
+    color: red;
+    font-weight: bold;
+    font-size: 20px;
+    text-align: center;
+}
+
+#success-msg {
+    color: #00d1b2;
+    font-weight: bold;
+    font-size: 20px;
+    text-align: center;
+}
+
+#connect-wallet-msg {
+    text-align: center;
+}
+
+.popup {
+    position: fixed;
+    top: 5%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    border-radius: 5px;
+    z-index: 9999;
+    display: inline-block;
+    max-width: 50%; /* adjust this value as needed */
+}
+
+.popup-content {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.5);
+    transform: translate(-50%, -50%);
+    background-color: #f14668;
+    padding: 10px;
+    border-radius: 5px;
+    text-align: center;
+    display: inline-block;
+    min-width: 150px;
+    max-width: 600px;
+    min-height: 30px;
+    max-height: 200px;
+    white-space: nowrap;
+    color: white;
+}
