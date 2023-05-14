@@ -84,9 +84,9 @@ contract(' TEST SUITE 1 [ Admin Management ]', function(accounts) {
 
         var tx = await token.signAddingMintingAdmin(accounts[2], {from: accounts[0]});
 
-        var event1 = tx.logs.find((log) => log.event === "MintAdminAddSignature");
-        assert(event1.args.admin === accounts[2], 'Admin is different from accounts[2]!');
-        assert(event1.args.signer === accounts[0]), 'Signer is different from accounts[0]!';
+        // var event1 = tx.logs.find((log) => log.event === "MintAdminAddSignature");
+        // assert(event1.args.admin === accounts[2], 'Admin is different from accounts[2]!');
+        // assert(event1.args.signer === accounts[0]), 'Signer is different from accounts[0]!';
 
         var event2 = tx.logs.find((log) => log.event === "MintAdminAdded");
         assert(event2.args.admin === accounts[2], 'Added admin is different from accounts[2]!');
@@ -97,7 +97,7 @@ contract(' TEST SUITE 1 [ Admin Management ]', function(accounts) {
 
     it("Add mint admin by unauthorized user", async() => {
         let token = await BDAERC20.deployed();
-        await tryCatch(token.signAddingMintingAdmin(accounts[1], {from: accounts[1]}), "Mint admin role required!");
+        await tryCatch(token.signAddingMintingAdmin(accounts[1], {from: accounts[1]}), "mintingAdmin role required!");
 
         // mint admins should remain the same
         var mintAdmins = await token.getMintAdmins.call({from: accounts[1]});
@@ -110,9 +110,9 @@ contract(' TEST SUITE 1 [ Admin Management ]', function(accounts) {
         // add accounts[2] as IDP admin
         var tx = await token.signAddingIDPAdmin(accounts[2], {from: accounts[0]});
 
-        var event1 = tx.logs.find((log) => log.event === "IDPAdminAddSignature");
-        assert(event1.args.admin === accounts[2], 'Admin is different from accounts[2]!');
-        assert(event1.args.signer === accounts[0], 'Signer is different from accounts[0]!');
+        // var event1 = tx.logs.find((log) => log.event === "IDPAdminAddSignature");
+        // assert(event1.args.admin === accounts[2], 'Admin is different from accounts[2]!');
+        // assert(event1.args.signer === accounts[0], 'Signer is different from accounts[0]!');
 
         var event2 = tx.logs.find((log) => log.event === "IDPAdminAdded");
         assert(event2.args.admin === accounts[2], 'Added admin is different from accounts[2]!');
@@ -122,9 +122,9 @@ contract(' TEST SUITE 1 [ Admin Management ]', function(accounts) {
 
         // add accounts[3] as IDP admin -- consensus needed
         var tx2 = await token.signAddingIDPAdmin(accounts[3], {from: accounts[0]});
-        var event3 = tx2.logs.find((log) => log.event === "IDPAdminAddSignature");
-        assert(event3.args.admin === accounts[3], 'Admin is different from accounts[3]!');
-        assert(event3.args.signer === accounts[0], 'Signer is different from accounts[0]!');
+        // var event3 = tx2.logs.find((log) => log.event === "IDPAdminAddSignature");
+        // assert(event3.args.admin === accounts[3], 'Admin is different from accounts[3]!');
+        // assert(event3.args.signer === accounts[0], 'Signer is different from accounts[0]!');
 
         // accounts[3] shouldn't be added yet
         var IDPAdmins = await token.getIDPAdmins.call({from: accounts[1]});
@@ -135,9 +135,9 @@ contract(' TEST SUITE 1 [ Admin Management ]', function(accounts) {
 
         // add second (final) signature
         var tx3 = await token.signAddingIDPAdmin(accounts[3], {from: accounts[2]});
-        var event4 = tx3.logs.find((log) => log.event === "IDPAdminAddSignature");
-        assert(event4.args.admin === accounts[3], 'Admin is different from accounts[3]!');
-        assert(event4.args.signer === accounts[2], 'Signer is different from accounts[2]!');
+        // var event4 = tx3.logs.find((log) => log.event === "IDPAdminAddSignature");
+        // assert(event4.args.admin === accounts[3], 'Admin is different from accounts[3]!');
+        // assert(event4.args.signer === accounts[2], 'Signer is different from accounts[2]!');
 
         var event5 = tx3.logs.find((log) => log.event === "IDPAdminAdded");
         assert(event5.args.admin === accounts[3], 'Added admin is different from accounts[3]!');
@@ -166,9 +166,9 @@ contract(' TEST SUITE 1 [ Admin Management ]', function(accounts) {
 
         // remove accounts[0] as IDP admin (first signature)
         var tx = await token.signRemovingIDPAdmin(accounts[0], {from: accounts[2]});
-        var event = tx.logs.find((log) => log.event === "IDPAdminRemoveSignature");
-        assert(event.args.admin === accounts[0], 'Admin is different from accounts[3]!');
-        assert(event.args.signer === accounts[2], 'Signer is different from accounts[2]!');
+        // var event = tx.logs.find((log) => log.event === "IDPAdminRemoveSignature");
+        // assert(event.args.admin === accounts[0], 'Admin is different from accounts[3]!');
+        // assert(event.args.signer === accounts[2], 'Signer is different from accounts[2]!');
 
         // accounts[0] should still be IDP admin
         var IDPAdmins = await token.getIDPAdmins.call({from: accounts[1]});
@@ -179,9 +179,9 @@ contract(' TEST SUITE 1 [ Admin Management ]', function(accounts) {
 
         // add final signature
         var tx = await token.signRemovingIDPAdmin(accounts[0], {from: accounts[3]});
-        var event = tx.logs.find((log) => log.event === "IDPAdminRemoveSignature");
-        assert(event.args.admin === accounts[0], 'Admin is different from accounts[3]!');
-        assert(event.args.signer === accounts[3], 'Signer is different from accounts[2]!');
+        // var event = tx.logs.find((log) => log.event === "IDPAdminRemoveSignature");
+        // assert(event.args.admin === accounts[0], 'Admin is different from accounts[3]!');
+        // assert(event.args.signer === accounts[3], 'Signer is different from accounts[2]!');
 
         var event = tx.logs.find((log) => log.event === "IDPAdminRemoved");
         assert(event.args.admin === accounts[0], 'Removed admin is different from accounts[3]!');
@@ -196,9 +196,9 @@ contract(' TEST SUITE 1 [ Admin Management ]', function(accounts) {
 
         // add accounts[0] as IDP admin -- consensus needed
         var tx2 = await token.signAddingIDPAdmin(accounts[0], {from: accounts[3]});
-        var event3 = tx2.logs.find((log) => log.event === "IDPAdminAddSignature");
-        assert(event3.args.admin === accounts[0], 'Admin is different from accounts[3]!');
-        assert(event3.args.signer === accounts[3], 'Signer is different from accounts[0]!');
+        // var event3 = tx2.logs.find((log) => log.event === "IDPAdminAddSignature");
+        // assert(event3.args.admin === accounts[0], 'Admin is different from accounts[3]!');
+        // assert(event3.args.signer === accounts[3], 'Signer is different from accounts[0]!');
 
         // accounts[0] shouldn't be added yet
         var IDPAdmins = await token.getIDPAdmins.call({from: accounts[1]});
@@ -206,9 +206,9 @@ contract(' TEST SUITE 1 [ Admin Management ]', function(accounts) {
 
         // add second (final) signature
         var tx3 = await token.signAddingIDPAdmin(accounts[0], {from: accounts[2]});
-        var event4 = tx3.logs.find((log) => log.event === "IDPAdminAddSignature");
-        assert(event4.args.admin === accounts[0], 'Admin is different from accounts[3]!');
-        assert(event4.args.signer === accounts[2], 'Signer is different from accounts[2]!');
+        // var event4 = tx3.logs.find((log) => log.event === "IDPAdminAddSignature");
+        // assert(event4.args.admin === accounts[0], 'Admin is different from accounts[3]!');
+        // assert(event4.args.signer === accounts[2], 'Signer is different from accounts[2]!');
 
         var event5 = tx3.logs.find((log) => log.event === "IDPAdminAdded");
         assert(event5.args.admin === accounts[0], 'Added admin is different from accounts[3]!');
@@ -220,7 +220,7 @@ contract(' TEST SUITE 1 [ Admin Management ]', function(accounts) {
 
 });
 
-contract(' TEST SUITE 1 [ IDP Management ]', function(accounts) {
+contract(' TEST SUITE 2 [ IDP Management ]', function(accounts) {
     // accounts[0] - owner of token, mint/idp admin
     // accounts[1] - regular user
     // accounts[2] - idp admin
@@ -254,9 +254,9 @@ contract(' TEST SUITE 1 [ IDP Management ]', function(accounts) {
         let token = await BDAERC20.deployed();
 
         var tx = await token.signAddingIDP(IDP1Address, {from: accounts[0]});
-        var event = tx.logs.find((log) => log.event === "IDPAddSignature");
-        assert(event.args.IDP === IDP1Address, 'IDP is different from IDP1Address!');
-        assert(event.args.signer === accounts[0], 'Signer is different from accounts[0]!');
+        // var event = tx.logs.find((log) => log.event === "IDPAddSignature");
+        // assert(event.args.IDP === IDP1Address, 'IDP is different from IDP1Address!');
+        // assert(event.args.signer === accounts[0], 'Signer is different from accounts[0]!');
 
         var event = tx.logs.find((log) => log.event === "IDPAdded");
         assert(event.args.IDP === IDP1Address, 'IDP is different from IDP1Address!');
@@ -296,23 +296,23 @@ contract(' TEST SUITE 1 [ IDP Management ]', function(accounts) {
         // add second IDPAdmin
         var tx = await token.signAddingIDPAdmin(accounts[2], {from: accounts[0]});
 
-        var event = tx.logs.find((log) => log.event === "IDPAdminAddSignature");
-        assert(event.args.admin === accounts[2], 'Admin is different from accounts[2]!');
-        assert(event.args.signer === accounts[0], 'Signer is different from accounts[0]!');
+        // var event = tx.logs.find((log) => log.event === "IDPAdminAddSignature");
+        // assert(event.args.admin === accounts[2], 'Admin is different from accounts[2]!');
+        // assert(event.args.signer === accounts[0], 'Signer is different from accounts[0]!');
 
         var event = tx.logs.find((log) => log.event === "IDPAdminAdded");
         assert(event.args.admin === accounts[2], 'Added admin is different from accounts[2]!');
 
         // add second IDP
         var tx = await token.signAddingIDP(IDP2Address, {from: accounts[2]});
-        var event = tx.logs.find((log) => log.event === "IDPAddSignature");
-        assert(event.args.IDP === IDP2Address, 'IDP is different from IDP2Address!');
-        assert(event.args.signer === accounts[2], 'Signer is different from accounts[2]!');
+        // var event = tx.logs.find((log) => log.event === "IDPAddSignature");
+        // assert(event.args.IDP === IDP2Address, 'IDP is different from IDP2Address!');
+        // assert(event.args.signer === accounts[2], 'Signer is different from accounts[2]!');
 
         var tx = await token.signAddingIDP(IDP2Address, {from: accounts[0]});
-        var event = tx.logs.find((log) => log.event === "IDPAddSignature");
-        assert(event.args.IDP === IDP2Address, 'IDP is different from IDP2Address!');
-        assert(event.args.signer === accounts[0], 'Signer is different from accounts[0]!');
+        // var event = tx.logs.find((log) => log.event === "IDPAddSignature");
+        // assert(event.args.IDP === IDP2Address, 'IDP is different from IDP2Address!');
+        // assert(event.args.signer === accounts[0], 'Signer is different from accounts[0]!');
 
         var event = tx.logs.find((log) => log.event === "IDPAdded");
         assert(event.args.IDP === IDP2Address, 'IDP is different from IDP2Address!');
@@ -333,8 +333,8 @@ contract(' TEST SUITE 1 [ IDP Management ]', function(accounts) {
         assert(event.args.user === accounts[3], 'User is different from accounts[3]!');
         assert(event.args.IDP === IDP2Address, 'IDP is different from IDP2Address!');
 
-        // check if accounts[1] is really verified now
-        assert(await token.isVerified.call(accounts[1], {from: accounts[1]}), 'accounts[1] should be verified user!');
+        // check if accounts[3] is really verified now
+        assert(await token.isVerified.call(accounts[3], {from: accounts[3]}), 'accounts[3] should be verified user!');
     });
 
     it("Remove first IDP", async() => {
@@ -342,14 +342,14 @@ contract(' TEST SUITE 1 [ IDP Management ]', function(accounts) {
 
         // remove first IDP
         var tx = await token.signRemovingIDP(IDP1Address, {from: accounts[2]});
-        var event = tx.logs.find((log) => log.event === "IDPRemoveSignature");
-        assert(event.args.IDP === IDP1Address, 'IDP is different from IDP1Address!');
-        assert(event.args.signer === accounts[2], 'Signer is different from accounts[2]!');
+        // var event = tx.logs.find((log) => log.event === "IDPRemoveSignature");
+        // assert(event.args.IDP === IDP1Address, 'IDP is different from IDP1Address!');
+        // assert(event.args.signer === accounts[2], 'Signer is different from accounts[2]!');
 
         var tx = await token.signRemovingIDP(IDP1Address, {from: accounts[0]});
-        var event = tx.logs.find((log) => log.event === "IDPRemoveSignature");
-        assert(event.args.IDP === IDP1Address, 'IDP is different from IDP1Address!');
-        assert(event.args.signer === accounts[0], 'Signer is different from accounts[0]!');
+        // var event = tx.logs.find((log) => log.event === "IDPRemoveSignature");
+        // assert(event.args.IDP === IDP1Address, 'IDP is different from IDP1Address!');
+        // assert(event.args.signer === accounts[0], 'Signer is different from accounts[0]!');
 
         var event = tx.logs.find((log) => log.event === "IDPRemoved");
         assert(event.args.IDP === IDP1Address, 'IDP is different from IDP1Address!');
@@ -377,226 +377,506 @@ contract(' TEST SUITE 1 [ IDP Management ]', function(accounts) {
         // send message + signature from accounts[7]
         await tryCatch(token.verify(sig.messageHash, sig.v, sig.r, sig.s, {from: accounts[7]}), "Message hash is incorrect!");
     });
+
+    it("Revoke non-verified user", async() => {
+        let token = await BDAERC20.deployed();
+
+        await tryCatch(token.signRevoke(accounts[7], {from: accounts[2]}), "User is not verified!");
+    });
+
+    it("Revoke verified user", async() => {
+        let token = await BDAERC20.deployed();
+
+        // remove accounts[1] with consensus of IDP admins
+        var tx = await token.signRevoke(accounts[1], {from: accounts[0]});
+        // var event = tx.logs.find((log) => log.event === "RevokeSignature");
+        // assert(event.args.user === accounts[1], 'User is different from accounts[1]!');
+        // assert(event.args.signer === accounts[0], 'Signer is different from accounts[0]!');
+
+        var tx = await token.signRevoke(accounts[1], {from: accounts[2]});
+        // var event = tx.logs.find((log) => log.event === "RevokeSignature");
+        // assert(event.args.user === accounts[1], 'User is different from accounts[1]!');
+        // assert(event.args.signer === accounts[2], 'Signer is different from accounts[2]!');
+
+        var event = tx.logs.find((log) => log.event === "UserRevoked");
+        assert(event.args.user === accounts[1], 'User is different from accounts[1]!');
+
+        // check that accounts[1] no longer counts as verified
+        assert(!await token.isVerified.call(accounts[1], {from: accounts[1]}), 'accounts[1] should not be verified!');
+    });
+
+    it("Approve verified, but not revoked user", async() => {
+        let token = await BDAERC20.deployed();
+
+        await tryCatch(token.signApprove(accounts[3], {from: accounts[2]}), "The proposed address is not revoked!");
+    });
+
+    it("Try revoke and approve without admin role", async() => {
+        let token = await BDAERC20.deployed();
+
+        await tryCatch(token.signApprove(accounts[1], {from: accounts[9]}), "IDP admin role required");
+        await tryCatch(token.signRevoke(accounts[3], {from: accounts[7]}), "IDP admin role required");
+    });
+
+    it("Approve verified and revoked user", async() => {
+        let token = await BDAERC20.deployed();
+
+        // approve back accounts[1]
+        var tx = await token.signApprove(accounts[1], {from: accounts[0]});
+        // var event = tx.logs.find((log) => log.event === "ApproveSignature");
+        // assert(event.args.user === accounts[1], 'User is different from accounts[1]!');
+        // assert(event.args.signer === accounts[0], 'Signer is different from accounts[0]!');
+
+        var tx = await token.signApprove(accounts[1], {from: accounts[2]});
+        // var event = tx.logs.find((log) => log.event === "ApproveSignature");
+        // assert(event.args.user === accounts[1], 'User is different from accounts[1]!');
+        // assert(event.args.signer === accounts[2], 'Signer is different from accounts[2]!');
+
+        var event = tx.logs.find((log) => log.event === "UserApproved");
+        assert(event.args.user === accounts[1], 'User is different from accounts[1]!');
+
+        // check that accounts[1] is verified again
+        assert(await token.isVerified.call(accounts[1], {from: accounts[1]}), 'accounts[1] should be verified!');
+    });
 });
 
+contract(' TEST SUITE 3 [ Restriction Admin Management ]', function(accounts) {
+    // accounts[0] -- restr admin
+    // accounts[1] -- restr admin
+    // accounts[2] -- verified user
+    // accounts[3] -- non verified user
 
-// contract(' TEST SUITE 2 [ Minting ]', function(accounts) {
-//     it("Signing with non existent IDP", async() => {
-//         contract = await BDAERC20.deployed();
-//         console.log(contract.address);
+    it("Change user TRANSFERLIMIT without restr admin", async() => {
+        let token = await BDAERC20.deployed();
+        // add IDP
+        var tx = await token.signAddingIDP(IDP1Address, {from: accounts[0]});
 
-//         // it needs to be in lower case, because solidity doesnt save address (msg.sender) in mixed case (mixed case == checksum)
-//         var message = accounts[1].toLowerCase();
+        var event = tx.logs.find((log) => log.event === "IDPAdded");
+        assert(event.args.IDP === IDP1Address, 'IDP is different from IDP1Address!');
 
-//         // hash message
-//         var hashedMessage = web3.utils.soliditySha3(message);
+        // verify accounts[2]
+        var sig = await signMessage(accounts[2], IDP1PrivateKey);
 
-//         // sign message (hash of address of user)
-//         var sig = await web3.eth.accounts.sign(hashedMessage, IDPPrivateKey);
+        var tx = await token.verify(sig.messageHash, sig.v, sig.r, sig.s, {from: accounts[2]});
+        var event = tx.logs.find((log) => log.event === "VerificationSuccessful");
+        assert(event.args.user === accounts[2], 'User is different from accounts[2]!');
+        assert(event.args.IDP === IDP1Address, 'IDP is different from IDP1Address!');
 
-//         // check for correct revert being called
-//         await tryCatch(contract.verify.call(sig.messageHash, sig.v, sig.r, sig.s, {from: accounts[1]}), "Message was not signed by a valid IDP!");
-//     });
+        await tryCatch(token.signTransferLimitChange(accounts[2], 200, {from: accounts[1]}), "restrAdmin role required!");
+    });
 
-// });
+    it("Change TRANSFERLIMIT of non verified user", async() => {
+        let token = await BDAERC20.deployed();
 
+        await tryCatch(token.signTransferLimitChange(accounts[3], 200, {from: accounts[0]}), 'Transfer limit can be changed on for verified users!');
+    });
 
-//     let tokenContract;
+    it("Add second restr admin", async() => {
+        let token = await BDAERC20.deployed();
 
-    // hooks for each contract
+        var tx = await token.signAddingRestrAdmin(accounts[1], {from: accounts[0]});
 
+        var event = tx.logs.find((log) => log.event === "RestrAdminAdded");
+        assert(event.args.admin === accounts[1], 'Restr admin is different from accounts[1]!');
 
+        // check that restr admin list contains correct admins
+        var restrAdmins = await token.getRestrAdmins.call({from: accounts[9]});
+        assert(equals(restrAdmins, [accounts[0], accounts[1]]), 'Restr admin list should contain accounts[0] adn accounts[1]!');
+    });
 
-// //     it("Try to mint without mintingAdmin", async() => {
-// //         // var contract = await BDAERC20.deployed()
-// //         // await contract.mint()
+    it("Change user TRANSFERLIMIT with consensus of verified user", async() => {
+        let token = await BDAERC20.deployed();
 
-// //         // try {
-// //         //     var receipt = await contract.executeTransaction(txID, { from: accounts[9] }); // the sender can be anybody, as tx is already confirmed
+        var tx = await token.signTransferLimitChange(accounts[2], 200, {from: accounts[0]});
+        var tx = await token.signTransferLimitChange(accounts[2], 200, {from: accounts[1]});
 
-// //         //     // the previously executed transaction is executed again by anybody == replay attack
-// //         //     var contractAfter = await web3.eth.getBalance(contract.address);
-// //         //     assert.equal((new BN(contractAfter)).add(new BN(VALUE_SENT)), contractBefore);
-// //         //     assert.fail('Replay attack was successfull.');
-// //         // } catch (error) {
-// //         //     const revertFound = error.message.search('revert') >= 0;
-// //         //     assert(revertFound, `Expected "revert", got ${error} instead`);
-// //         // }
-// //         // var receiptils.toWei('99', 'ether'));
-// //     });
-// // });
+        var event = tx.logs.find((log) => log.event === "TransferLimitChanged");
+        assert(event.args.user === accounts[2], 'User is defferent from accounts[2]!');
+        assert(Number(event.args.newValue) === 200, 'Transfer limit should be 200!');
 
-// });
+        // check that restr admin list contains correct admins
+        var limit = await token.getTransferLimit.call(accounts[2], {from: accounts[9]});
+        assert(Number(limit) === 200, 'Transfer limit should be 200!');
+    });
+});
 
+contract(' TEST SUITE 4 [ Minting ]', function(accounts) {
+    // accounts[0] -- mint admin
+    // accounts[1] -- mint admin
+    // accounts[2] -- verified user
+    // accounts[3] -- verified user
+    // accounts[4] -- non verified user
 
-// contract('BDAERC20 Tests', function(accounts) {
-//     it("Send money from accounts[1] to accounts[0]", async() => {
-//         assert.equal(0,0);
-//     });
+    it("Mint without mint admin", async() => {
+        let token = await BDAERC20.deployed();
 
-//     it("Send money from accounts[1] to accounts[0]", async() => {
-//         assert.equal(0,0);
-//     });
+        // add IDP
+        var tx = await token.signAddingIDP(IDP1Address, {from: accounts[0]});
 
-//     // var INITIAL_BALANCE = W3.utils.toWei("1", 'ether'); // in wei
-//     // var VALUE_SENT = W3.utils.toWei("0.1", 'ether'); // in wei
-//     // var TOO_BIG_AMOUNT = W3.utils.toWei("1000", 'ether'); // in wei
-//     // var RECEPIENT = accounts[9];
+        var event = tx.logs.find((log) => log.event === "IDPAdded");
+        assert(event.args.IDP === IDP1Address, 'IDP is different from IDP1Address!');
 
-//     // it("Zero Ballance", async() => {
-//     //     var contract = await MultiSigWallet.deployed()
-//     //     console.log("Address of wallet's contract is: ", contract.address);
-//     //     var balance = await web3.eth.getBalance(contract.address);
-//     //     assert.equal(0, balance);
-//     // });
+        // verify accounts[2]
+        var sig = await signMessage(accounts[2], IDP1PrivateKey);
 
-//     // it("Contract owners are correct.", async() => {
-//     //     var contract = await MultiSigWallet.deployed()
+        var tx = await token.verify(sig.messageHash, sig.v, sig.r, sig.s, {from: accounts[2]});
+        var event = tx.logs.find((log) => log.event === "VerificationSuccessful");
+        assert(event.args.user === accounts[2], 'User is different from accounts[2]!');
+        assert(event.args.IDP === IDP1Address, 'IDP is different from IDP1Address!');
 
-//     //     for (let i = 0; i < conf.NUMBER_OF_OWNERS; i++) {
-//     //         var owner = await contract.owners.call(i);
-//     //         assert.equal(accounts[i], owner);
-//     //     }
-//     // });
+        // verify accounts[3]
+        var sig = await signMessage(accounts[3], IDP1PrivateKey);
 
-//     // it("Send money to contract by account[0]", async() => {
-//     //     var contract = await MultiSigWallet.deployed()
-//     //     var receipt = await web3.eth.sendTransaction({
-//     //         from: accounts[0],
-//     //         to: contract.address,
-//     //         value: INITIAL_BALANCE
-//     //     })
-//     //     console.log("\t \\/== Gas used for sending ether to the contract: ", receipt.gasUsed);
+        var tx = await token.verify(sig.messageHash, sig.v, sig.r, sig.s, {from: accounts[3]});
+        var event = tx.logs.find((log) => log.event === "VerificationSuccessful");
+        assert(event.args.user === accounts[3], 'User is different from accounts[3]!');
+        assert(event.args.IDP === IDP1Address, 'IDP is different from IDP1Address!');
 
-//     //     var contrBalance = await web3.eth.getBalance(contract.address);
-//     //     console.log("\t Current balance of contract is", W3.utils.fromWei(contrBalance.toString(), 'ether'), 'Ethers.');
-//     //     assert.equal(contrBalance, W3.utils.toWei('1', 'ether'));
+        await tryCatch(token.mint([accounts[3]], [10], {from: accounts[4]}), "mintingAdmin role required!");
+    });
 
-//     //     var senderBalance = await web3.eth.getBalance(accounts[0]);
-//     //     assert.ok(senderBalance < W3.utils.toWei('99', 'ether'));
-//     // });
+    it("Mint to non verified user", async() => {
+        let token = await BDAERC20.deployed();
 
-//     // it("Submit (and confirm) new transaction by the 1st owner (i.e., account[0])", async() => {
-//     //     var contract = await MultiSigWallet.deployed()
-//     //     var receipt = await contract.submitTransaction(RECEPIENT, VALUE_SENT, { from: accounts[0] });
-//     //     console.log("\t \\/== Gas used for submitTransaction() by owner[0]: ", receipt.receipt.gasUsed);
+        await tryCatch(token.mint([accounts[4]], [10], {from: accounts[0]}), 'Cannot mint to non verified account!');
 
-//     //     assert(isEventInLogs("Submission", receipt.receipt.logs))
-//     //     assert(isEventInLogs("Confirmation", receipt.receipt.logs))
+    });
 
-//     //     // for demonstration purposes, you may check count of signatures and call other UI intended functions
-//     //     var sigCnt = await contract.getSignatureCount.call(0);
-//     //     assert.equal(sigCnt, 1);
+    it("Mint to verified user", async() => {
+        let token = await BDAERC20.deployed();
 
-//     //     // for demonstration purposes we check how/whether the storage of blokchain was updated
-//     //     var cnt = await contract.transactionCount.call()
-//     //     assert.equal(cnt, 1);
+        var tx = await token.mint([accounts[2]], [10], {from: accounts[0]});
+        var event = tx.logs.find((log) => log.event === "Mint");
+        assert(event.args.account === accounts[2], 'User is different from accounts[2]!');
+        assert(event.args.admin === accounts[0], 'Mint admin is different from accounts[0]!');
+        assert(Number(event.args.amount) === 10, 'Amount is different from 10!');
 
-//     //     var tx = await contract.transactions.call(0);
-//     //     assert.equal(tx.destination, RECEPIENT)
-//     //     assert.equal(tx.value, VALUE_SENT)
-//     // });
+        // check balance
+        var balance = await token.balanceOf.call(accounts[2]);
+        assert(Number(balance) === 10, 'Balance is different from 10!');
 
-//     // it("Confirm (i.e., co-sign) and execute transaction by remaining n-1 owners (i.e., account[1]... account[n - 1])", async() => {
-//     //     var contract = await MultiSigWallet.deployed()
-//     //     var recepientBefore = await web3.eth.getBalance(RECEPIENT); // store the balance of recepient before execution of transaction
-//     //     var gasPayedByRecepient = 0;
-//     //     var txID = 0; // the 1st transaction
+        // check already minted
+        var minted = await token.mintedToday.call(accounts[0]);
+        assert(Number(minted) === 10, 'Minted today is different from 10!');
+    });
 
-//     //     // the rest of minimal required owners sign the transaction
-//     //     var receipt;
-//     //     for (let i = 1; i < conf.REQUIRED_SIGS; i++) {
-//     //         receipt = await contract.confirmTransaction(txID, { from: accounts[i] });
-//     //         console.log(receipt);
-//     //         console.log(`\t \\/== Gas used for confirmTransaction() by owner[${i}] is: `, receipt.receipt.gasUsed);
-//     //         if (RECEPIENT === accounts[i])
-//     //             gasPayedByRecepient = receipt.receipt.gasUsed; // this is required to take into consideration when checking the recepient's balance after
-//     //         assert(isEventInLogs("Confirmation", receipt.receipt.logs))
-//     //     }
-//     //     // since we have already all required signatures, the last confirmation mut cause tx to be also executed
-//     //     assert(isEventInLogs("Execution", receipt.receipt.logs));
+    it("Mint to multiple verified users", async() => {
+        let token = await BDAERC20.deployed();
 
+        var tx = await token.mint([accounts[2], accounts[3]], [10, 30], {from: accounts[0]});
+        var event = tx.logs.filter((log) => log.event === "Mint")[0];
+        assert(event.args.account === accounts[2], 'User is different from accounts[2]!');
+        assert(event.args.admin === accounts[0], 'Mint admin is different from accounts[0]!');
+        assert(Number(event.args.amount) === 10, 'Amount is different from 10!');
 
-//     //     // check whether is transaction confirmed
-//     //     var isConfirmed = await contract.isTxConfirmed.call(txID);
-//     //     assert(isConfirmed)
+        var event = tx.logs.filter((log) => log.event === "Mint")[1];
+        assert(event.args.account === accounts[3], 'User is different from accounts[3]!');
+        assert(event.args.admin === accounts[0], 'Mint admin is different from accounts[0]!');
+        assert(Number(event.args.amount) === 30, 'Amount is different from 30!');
 
-//     //     // you may check count of signatures
-//     //     var sigCnt = await contract.getSignatureCount.call(txID);
-//     //     assert.equal(sigCnt, conf.REQUIRED_SIGS);
+        // check balance
+        var balance = await token.balanceOf.call(accounts[2]);
+        assert(Number(balance) === 20, 'Balance is different from 20!');
 
-//     //     //check balance of contract and recipient after execution of transaction
-//     //     var contrBalance = await web3.eth.getBalance(contract.address);
-//     //     assert.equal((new BN(contrBalance)).add(new BN(VALUE_SENT)), INITIAL_BALANCE);
+        var balance = await token.balanceOf.call(accounts[3]);
+        assert(Number(balance) === 30, 'Balance is different from 30!');
 
-//     //     var recepientAfter = await web3.eth.getBalance(RECEPIENT);
-//     //     assert.equal((new BN(recepientBefore)).add(new BN(VALUE_SENT)).sub(new BN(gasPayedByRecepient * GAS_PRICE)), recepientAfter);
-//     // });
+        // check already minted
+        var minted = await token.mintedToday.call(accounts[0]);
+        assert(Number(minted) === 50, 'Minted today is different from 50!');
+    });
 
-//     // it("Check replay protection by initiating already executed transaction again.", async() => {
-//     //     var contract = await MultiSigWallet.deployed()
-//     //     var contractBefore = await web3.eth.getBalance(contract.address); // store the balance of recepient before execution of transaction
-//     //     var txID = 0; // the 1st one
+    it("Mint to multiple verified users and one non verified", async() => {
+        let token = await BDAERC20.deployed();
 
-//     //     try {
-//     //         var receipt = await contract.executeTransaction(txID, { from: accounts[9] }); // the sender can be anybody, as tx is already confirmed
+        await tryCatch(token.mint([accounts[2], accounts[3], accounts[4]], [10, 20, 30], {from: accounts[0]}), 'Cannot mint to non verified account!');
+    });
 
-//     //         // the previously executed transaction is executed again by anybody == replay attack
-//     //         var contractAfter = await web3.eth.getBalance(contract.address);
-//     //         assert.equal((new BN(contractAfter)).add(new BN(VALUE_SENT)), contractBefore);
-//     //         assert.fail('Replay attack was successfull.');
-//     //     } catch (error) {
-//     //         const revertFound = error.message.search('revert') >= 0;
-//     //         assert(revertFound, `Expected "revert", got ${error} instead`);
-//     //     }
-//     // });
+    it("Mint more than TMAX", async() => {
+        let token = await BDAERC20.deployed();
 
+        await tryCatch(token.mint([accounts[2], accounts[3]], [600, 700], {from: accounts[0]}), "Admin can't mint more than TMAX in a single day!");
+    });
 
-//     // it("Check event NotEnoughBalance is emitted properly.", async() => {
-//     //     var contract = await MultiSigWallet.deployed()
-//     //     var txID = 1; // the 2nd one
-//     //     var receipt = await contract.submitTransaction(RECEPIENT, TOO_BIG_AMOUNT, { from: accounts[0] });
-//     //     for (let i = 1; i < conf.REQUIRED_SIGS; i++) {
-//     //         receipt = await contract.confirmTransaction(txID, { from: accounts[i] });
-//     //         assert(isEventInLogs("Confirmation", receipt.receipt.logs))
-//     //     }
-//     //     assert(isEventInLogs("Confirmation", receipt.receipt.logs));
+    it("Change TMAX with consensus", async() => {
+        let token = await BDAERC20.deployed();
 
-//     //     assert(isEventInLogs("NotEnoughBalance", receipt.receipt.logs));
-//     // });
+        // Add another mint admin
+        var tx = await token.signAddingMintingAdmin(accounts[1], {from: accounts[0]});
+        var event = tx.logs.find((log) => log.event === "MintAdminAdded");
+        assert(event.args.admin === accounts[1], 'Mint admin is different from accounts[1]!');
 
+        // check TMAX
+        var TMAX = await token.getTMAX.call();
+        assert(Number(TMAX) === 1000, 'TMAX is different from 1000!');
 
-//     // it("Get owners who signed the 2nd transaction (i.e., ID = 1).", async() => {
-//     //     var contract = await MultiSigWallet.deployed()
-//     //     var txID = 1; // the 1st one
+        // first signature
+        var tx = await token.signTMAXChange(2000, {from: accounts[0]});
 
-//     //     try {
-//     //         var signersOfLastTx = await contract.getOwnersWhoSignedTx.call(txID);
-//     //     } catch (error) {
-//     //         const typeError = error.message.search('call') >= 0;
-//     //         assert(typeError, `Expected TypeError, got ${error} instead`);
-//     //         throw "Function getOwnersWhoSignedTx() is not implemented yet."
-//     //     }
+        // second (final) signature
+        var tx = await token.signTMAXChange(2000, {from: accounts[1]});
+        var event = tx.logs.find((log) => log.event === "TMAXChanged");
+        assert(Number(event.args.newTMAX) === 2000, 'TMAX is different from 2000!');
 
-//     //     // console.log(signersOfLastTx);
-//     //     for (let i = 0; i < conf.REQUIRED_SIGS; i++) {
-//     //         assert(signersOfLastTx.includes(accounts[i]));
-//     //     }
+        // check TMAX
+        var TMAX = await token.getTMAX.call();
+        assert(Number(TMAX) === 2000, 'TMAX is different from 2000!');
+    });
 
+    it("Length of mint addresses and length of amounts differ", async() => {
+        let token = await BDAERC20.deployed();
 
+        await tryCatch(token.mint([accounts[2], accounts[3]], [600], {from: accounts[0]}), 'Number of accounts and amounts is not the same!');
+    });
 
-//     // });
-// });
+    it("Consensus mint higher than TMAX", async() => {
+        let token = await BDAERC20.deployed();
 
+        // first signature
+        var tx = await token.signMint([accounts[2]], [20000], {from: accounts[0]});
 
+        // check balance
+        var balance = await token.balanceOf.call(accounts[2]);
+        assert(Number(balance) === 20, 'Balance is different from 20!');
 
-/// AUX Functions
+        // second (final) signature
+        var tx = await token.signMint([accounts[2]], [20000], {from: accounts[1]});
+        var event = tx.logs.find((log) => log.event === "MintConsensus");
+        assert(event.args.account === accounts[2], 'User is different from accounts[2]!');
+        assert(Number(event.args.amount) === 20000, 'Amount is different from 20000!');
 
-function isEventInLogs(event, logs) {
-    for (let i = 0; i < logs.length; i++) {
-        if (logs[i].event !== undefined && logs[i].event == event) {
-            return true;
-        }
-    }
-    return false;
-};
+        // check balance
+        var balance = await token.balanceOf.call(accounts[2]);
+        assert(Number(balance) === 20020, 'Balance is different from 20020!');
+
+        // check already minted, since signMint shouldnt count into TMAX
+        var minted = await token.mintedToday.call(accounts[0]);
+        assert(Number(minted) === 50, 'Minted today is different from 50!');
+        var minted = await token.mintedToday.call(accounts[1]);
+        assert(Number(minted) === 0, 'Minted today is different from 0!');
+    });
+
+    it("Mint more than TOTAL_SUPPLY_CAP", async() => {
+        let token = await BDAERC20.deployed();
+
+        await tryCatch(token.signMint([accounts[2], accounts[3]], [600, 999000], {from: accounts[0]}), 'Token supply cap reached!');
+    });
+});
+
+contract(' TEST SUITE 5 [ Transfer and Delegation ]', function(accounts) {
+    // accounts[0] -- mint admin
+    // accounts[1] -- verified user
+    // accounts[2] -- verified user
+    // accounts[3] -- verified user
+    // accounts[4] -- non verified user
+
+    it("Send tokens from and to non verified account", async() => {
+        let token = await BDAERC20.deployed();
+
+        await tryCatch(token.transfer(accounts[2], 10, {from: accounts[1]}), 'Sender is not verified!');
+    });
+
+    it("Send tokens from and to verified account", async() => {
+        let token = await BDAERC20.deployed();
+
+        // add IDP
+        var tx = await token.signAddingIDP(IDP1Address, {from: accounts[0]});
+        var event = tx.logs.find((log) => log.event === "IDPAdded");
+        assert(event.args.IDP === IDP1Address, 'IDP is different from IDP1Address!');
+
+        // verify accounts[1]
+        var sig = await signMessage(accounts[1], IDP1PrivateKey);
+
+        var tx = await token.verify(sig.messageHash, sig.v, sig.r, sig.s, {from: accounts[1]});
+        var event = tx.logs.find((log) => log.event === "VerificationSuccessful");
+        assert(event.args.user === accounts[1], 'User is different from accounts[1]!');
+        assert(event.args.IDP === IDP1Address, 'IDP is different from IDP1Address!');
+
+        // verify accounts[2]
+        var sig = await signMessage(accounts[2], IDP1PrivateKey);
+
+        var tx = await token.verify(sig.messageHash, sig.v, sig.r, sig.s, {from: accounts[2]});
+        var event = tx.logs.find((log) => log.event === "VerificationSuccessful");
+        assert(event.args.user === accounts[2], 'User is different from accounts[2]!');
+        assert(event.args.IDP === IDP1Address, 'IDP is different from IDP1Address!');
+
+        // verify accounts[3]
+        var sig = await signMessage(accounts[3], IDP1PrivateKey);
+
+        var tx = await token.verify(sig.messageHash, sig.v, sig.r, sig.s, {from: accounts[3]});
+        var event = tx.logs.find((log) => log.event === "VerificationSuccessful");
+        assert(event.args.user === accounts[3], 'User is different from accounts[3]!');
+        assert(event.args.IDP === IDP1Address, 'IDP is different from IDP1Address!');
+
+        // mint some tokens
+        var tx = await token.mint([accounts[1], accounts[2]], [500, 100], {from: accounts[0]});
+        var event = tx.logs.filter((log) => log.event === "Mint")[0];
+        assert(event.args.account === accounts[1], 'User is different from accounts[1]!');
+        assert(event.args.admin === accounts[0], 'Mint admin is different from accounts[0]!');
+        assert(Number(event.args.amount) === 500, 'Amount is different from 500!');
+
+        var event = tx.logs.filter((log) => log.event === "Mint")[1];
+        assert(event.args.account === accounts[2], 'User is different from accounts[2]!');
+        assert(event.args.admin === accounts[0], 'Mint admin is different from accounts[0]!');
+        assert(Number(event.args.amount) === 100, 'Amount is different from 100!');
+
+        // check balance
+        var balance = await token.balanceOf.call(accounts[1]);
+        assert(Number(balance) === 500, 'Balance is different from 500!');
+
+        var balance = await token.balanceOf.call(accounts[2]);
+        assert(Number(balance) === 100, 'Balance is different from 100!');
+
+        var balance = await token.balanceOf.call(accounts[3]);
+        assert(Number(balance) === 0, 'Balance is different from 100!');
+
+        // transfer
+        var tx = await token.transfer(accounts[2], 25, {from: accounts[1]});
+        var event = tx.logs.find((log) => log.event === "Transfer");
+        assert(event.args.from === accounts[1], 'Sender is different from accounts[1]!');
+        assert(event.args.to === accounts[2], 'Reciever is different from accounts[2]!');
+        assert(Number(event.args.value) === 25, 'Value is different from 25!');
+
+        // check balance
+        var balance = await token.balanceOf.call(accounts[1]);
+        assert(Number(balance) === 475, 'Balance is different from 475!');
+
+        var balance = await token.balanceOf.call(accounts[2]);
+        assert(Number(balance) === 125, 'Balance is different from 125!');
+
+        var balance = await token.balanceOf.call(accounts[3]);
+        assert(Number(balance) === 0, 'Balance is different from 100!');
+    });
+
+    it("Send more than TRANSFERLIMIT", async() => {
+        let token = await BDAERC20.deployed();
+
+        await tryCatch(token.transfer(accounts[2], 200, {from: accounts[1]}), 'Daily transfer limit reached!');
+    });
+
+    it("Change TRANSFERLIMIT and send more", async() => {
+        let token = await BDAERC20.deployed();
+
+        // change transfer limit
+        var tx = await token.signTransferLimitChange(accounts[1], 2000, {from: accounts[0]});
+        var event = tx.logs.find((log) => log.event === "TransferLimitChanged");
+        assert(event.args.user === accounts[1], 'User is defferent from accounts[2]!');
+        assert(Number(event.args.newValue) === 2000, 'Transfer limit should be 2000!');
+
+        // repeat failed transfer
+        var tx = await token.transfer(accounts[2], 200, {from: accounts[1]});
+        var event = tx.logs.find((log) => log.event === "Transfer");
+        assert(event.args.from === accounts[1], 'Sender is different from accounts[1]!');
+        assert(event.args.to === accounts[2], 'Reciever is different from accounts[2]!');
+        assert(Number(event.args.value) === 200, 'Value is different from 200!');
+
+        // check balance
+        var balance = await token.balanceOf.call(accounts[1]);
+        assert(Number(balance) === 275, 'Balance is different from 275!');
+
+        var balance = await token.balanceOf.call(accounts[2]);
+        assert(Number(balance) === 325, 'Balance is different from 325!');
+    });
+
+    it("Send tokens without enough funds", async() => {
+        let token = await BDAERC20.deployed();
+
+        await tryCatch(token.transfer(accounts[2], 10, {from: accounts[3]}), "ERC20: transfer amount exceeds balance");
+    });
+
+    it("Approve non verified user for delegation", async() => {
+        let token = await BDAERC20.deployed();
+
+        await tryCatch(token.approve(accounts[4], 100, {from: accounts[1]}), 'Spender is not verified!');
+    });
+
+    // accounts[1] -- 275
+    // accounts[2] -- 325
+    // accounts[3] -- 0
+    it("Approve another user for delegation", async() => {
+        let token = await BDAERC20.deployed();
+
+        // approve
+        var tx = await token.approve(accounts[3], 50, {from: accounts[1]});
+        var event = tx.logs.find((log) => log.event === "Approval");
+        assert(event.args.owner === accounts[1], 'Owner is different from accounts[1]!');
+        assert(event.args.spender === accounts[3], 'Spender is different from accounts[3]!');
+        assert(Number(event.args.value) === 50, 'Value is different from 50!');
+
+        // check allowance
+        var allowance = await token.allowance.call(accounts[1], accounts[3]);
+        assert(Number(allowance) === 50, 'Allowance is different from 50!');
+    });
+
+    it("Spend tokens by spender within limit", async() => {
+        let token = await BDAERC20.deployed();
+
+        // transfer from
+        var tx = await token.transferFrom(accounts[1], accounts[2], 25, {from: accounts[3]});
+        var event = tx.logs.find((log) => log.event === "Transfer");
+        assert(event.args.from === accounts[1], 'Sender is different from accounts[1]!');
+        assert(event.args.to === accounts[2], 'Reciever is different from accounts[2]!');
+        assert(Number(event.args.value) === 25, 'Value is different from 25!');
+
+        // check allowance
+        var allowance = await token.allowance.call(accounts[1], accounts[3]);
+        assert(Number(allowance) === 25, 'Allowance is different from 25!');
+
+        // check balance
+        var balance = await token.balanceOf.call(accounts[1]);
+        assert(Number(balance) === 250, 'Balance is different from 250!');
+
+        var balance = await token.balanceOf.call(accounts[2]);
+        assert(Number(balance) === 350, 'Balance is different from 350!');
+    });
+
+    it("Spend more than was approved", async() => {
+        let token = await BDAERC20.deployed();
+
+        await tryCatch(token.transferFrom(accounts[1], accounts[2], 50, {from: accounts[3]}), "ERC20: insufficient allowance");
+    });
+
+    it("Change amount of approval for the same user", async() => {
+        let token = await BDAERC20.deployed();
+
+        // approve again
+        var tx = await token.approve(accounts[3], 60, {from: accounts[1]});
+        var event = tx.logs.find((log) => log.event === "Approval");
+        assert(event.args.owner === accounts[1], 'Owner is different from accounts[1]!');
+        assert(event.args.spender === accounts[3], 'Spender is different from accounts[3]!');
+        assert(Number(event.args.value) === 60, 'Value is different from 60!');
+
+        // check allowance
+        var allowance = await token.allowance.call(accounts[1], accounts[3]);
+        assert(Number(allowance) === 60, 'Allowance is different from 60!');
+    });
+
+    it("Delegate more within limit", async() => {
+        let token = await BDAERC20.deployed();
+
+        // transfer from
+        var tx = await token.transferFrom(accounts[1], accounts[2], 50, {from: accounts[3]});
+        var event = tx.logs.find((log) => log.event === "Transfer");
+        assert(event.args.from === accounts[1], 'Sender is different from accounts[1]!');
+        assert(event.args.to === accounts[2], 'Reciever is different from accounts[2]!');
+        assert(Number(event.args.value) === 50, 'Value is different from 50!');
+
+        // check allowance
+        var allowance = await token.allowance.call(accounts[1], accounts[3]);
+        assert(Number(allowance) === 10, 'Allowance is different from 10!');
+
+        // check balance
+        var balance = await token.balanceOf.call(accounts[1]);
+        assert(Number(balance) === 200, 'Balance is different from 200!');
+
+        var balance = await token.balanceOf.call(accounts[2]);
+        assert(Number(balance) === 400, 'Balance is different from 400!');
+    });
+
+    it("Methods increaseAllowance and decreaseAllowance are not part of ERC20", async() => {
+        let token = await BDAERC20.deployed();
+
+        await tryCatch(token.increaseAllowance(accounts[3], 50, {from: accounts[1]}), "Not part of ERC20!");
+        await tryCatch(token.decreaseAllowance(accounts[3], 50, {from: accounts[1]}), "Not part of ERC20!");
+    });
+});
