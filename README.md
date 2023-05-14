@@ -40,18 +40,25 @@ make run-dapp
 
 DAPP is now available through a web browser at [http://localhost:8000](http://localhost:8000).
 
+To run Truffle tests and/or gas measurements, run:
+```
+truffle test
+```
+
 ## Repository Structure
     .
     ├── config/                 # Truffle default values for contracts
     ├── contracts               # Source code of contracts
     ├── dapp/                   # Source code of DAPP
+    ├── doc-src/                # Source code of documentation (LaTex)
     ├── migrations/             # Truffle deploy scripts
     ├── test/                   # Truffle tests
     ├── .gitignore
     ├── .secret                 # Truffle .secret
-    ├── assignment.pdf
+    ├── assignment.pdf          # Specification of modification of ERC20 token
+    ├── documentation.pdf
     ├── LICENSE
-    ├── Makefile
+    ├── Makefile                # Provides some basic targets
     ├── package.json            # Dependencies for npm
     ├── package-lock.json       # Dependencies for npm
     ├── README.md
