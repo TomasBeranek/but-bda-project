@@ -1,6 +1,6 @@
 let web3;
 let BDAERC20Contract;
-let activeTab;
+let activeTab = 'user-tab';
 
 // Mnemonic for accounts in ganache-cli
 // logic comic motion galaxy replace mimic warfare dilemma usual blame palm receive
@@ -72,7 +72,7 @@ async function getAllowance() {
         return;
     }
 
-    document.querySelector("#allowance").innerHTML = allowance; //+ " BDAT";
+    document.querySelector("#allowance").innerHTML = allowance + " BDAT";
     showPopupMessage("Allowance retrieved succesfully.", "green");
 }
 
@@ -89,6 +89,7 @@ async function sendDelegationTransfer() {
         return;
     }
 
+    await getAllowance();
     showPopupMessage("Delegataion transfer transaction sent succesfully.", "green");
 }
 
@@ -139,7 +140,7 @@ async function adminMintConsensus() {
     }
 
     try {
-        await BDAERC20Contract.methods.mint(recievers, amounts).send( {from: sender} );
+        await BDAERC20Contract.methods.signMint(recievers, amounts).send( {from: sender} );
     } catch (error) {
         showPopupMessage("Error: " + extractRevertMessage(error.message) + "!", "red");
         return;
@@ -711,6 +712,7 @@ function hidePopupMessage() {
 async function init() {
     // Listen for the accountsChanged event
     window.ethereum.on("accountsChanged", function (accounts) {
+        activeTab = 'user-tab';
         init();
     });
 
@@ -779,15 +781,16 @@ async function init() {
 
         const account = document.querySelector("#account-addr").innerHTML;
 
-        if (event.returnValues.user.toLowerCase() !== account) {
-            return;
+        if (event.returnValues.user.toLowerCase() === account) {
+            if (activeTab === "user-tab") {
+                reloadUserData();
+            }
+            showPopupMessage("Verification successful.", "green");
         }
 
-        showTab("user-tab");
         if (document.getElementById("dropdown-text").innerHTML === "Verified user") {
             reloadAddressList();
         }
-        showPopupMessage("Verification successful.", "green");
     });
 
     BDAERC20Contract.events.Transfer({}, function(error, event) {
@@ -798,15 +801,19 @@ async function init() {
 
         const account = document.querySelector("#account-addr").innerHTML;
 
-        if (event.returnValues.to.toLowerCase() !== account) {
-            return;
+        if (event.returnValues.to.toLowerCase() === account) {
+            if (activeTab === 'user-tab') {
+                reloadUserData();
+            }
+            showPopupMessage("Tokens recieved.", "green");
         }
 
-        if (activeTab === 'user-tab') {
-            reloadUserData();
+        if (event.returnValues.from.toLowerCase() === account) {
+            if (activeTab === 'user-tab') {
+                reloadUserData();
+            }
+            showPopupMessage("Tokens sent.", "green");
         }
-
-        showPopupMessage("Tokens recieved.", "green");
     });
 
     BDAERC20Contract.events.MintAdminAdded({}, function(error, event) {
@@ -996,6 +1003,7 @@ async function init() {
 
         const account = document.querySelector("#account-addr").innerHTML;
 
+        console.log(activeTab);
         if (event.returnValues.account.toLowerCase() === account) {
             if (activeTab === 'user-tab') {
                 reloadUserData();
