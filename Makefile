@@ -6,3 +6,6 @@ run-dapp:
 
 deploy:
 	truffle deploy --network development
+
+zip:
+	zip -9 -r xberan46.zip .secret assignment.pdf config/ contracts/ doc-src/ documentation.pdf LICENSE Makefile migrations/ package.json package-lock.json README.md test/ truffle-config.js dapp/bdat-dapp.html dapp/index.html dapp/Makefile dapp/script.js dapp/styles.css
