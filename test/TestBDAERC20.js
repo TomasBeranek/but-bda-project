@@ -880,3 +880,47 @@ contract(' TEST SUITE 5 [ Transfer and Delegation ]', function(accounts) {
         await tryCatch(token.decreaseAllowance(accounts[3], 50, {from: accounts[1]}), "Not part of ERC20!");
     });
 });
+
+async function printGasUsage(call, functionName) {
+    const tx = await call;
+    const receipt = await web3.eth.getTransactionReceipt(tx.tx);
+    console.log("    " + functionName + ": ", receipt.gasUsed);
+}
+
+contract(' TEST SUITE 6 [ Gas measurements ]', function(accounts) {
+    it("Gas measurements", async() => {
+        let token = await BDAERC20.deployed();
+
+
+        await printGasUsage(token.signAddingIDP(IDP1Address, {from: accounts[0]}), "signAddingIDP");
+        var sig = await signMessage(accounts[0], IDP1PrivateKey);
+        await printGasUsage(token.verify(sig.messageHash, sig.v, sig.r, sig.s, {from: accounts[0]}), "verify");
+
+        var sig = await signMessage(accounts[1], IDP1PrivateKey);
+        token.verify(sig.messageHash, sig.v, sig.r, sig.s, {from: accounts[1]});
+        var sig = await signMessage(accounts[2], IDP1PrivateKey);
+        token.verify(sig.messageHash, sig.v, sig.r, sig.s, {from: accounts[2]});
+
+        await printGasUsage(token.mint([accounts[0], accounts[1], accounts[2]], [100, 100, 100], {from: accounts[0]}), "mint");
+        await printGasUsage(token.signMint([accounts[0], accounts[1], accounts[2]], [100, 100, 100], {from: accounts[0]}), "signMint");
+        await printGasUsage(token.transfer(accounts[1], 1, {from: accounts[0]}), "transfer");
+        await printGasUsage(token.approve(accounts[1], 10, {from: accounts[0]}), "approve");
+        await printGasUsage(token.transferFrom(accounts[0], accounts[2], 1, {from: accounts[1]}), "transferFrom");
+        await printGasUsage(token.signTransferLimitChange(accounts[0], 100, {from: accounts[0]}), "signTransferLimitChange");
+        await printGasUsage(token.signTMAXChange(2000, {from: accounts[0]}), "signTMAXChange");
+        await printGasUsage(token.signAddingMintingAdmin(accounts[1], {from: accounts[0]}), "signAddingMintingAdmin");
+        await printGasUsage(token.signAddingIDPAdmin(accounts[1], {from: accounts[0]}), "signAddingIDPAdmin");
+        await printGasUsage(token.signAddingRestrAdmin(accounts[1], {from: accounts[0]}), "signAddingRestrAdmin");
+
+        token.signRemovingMintingAdmin(accounts[1], {from: accounts[1]});
+        token.signRemovingIDPAdmin(accounts[1], {from: accounts[1]});
+        token.signRemovingRestrAdmin(accounts[1], {from: accounts[1]});
+
+        await printGasUsage(token.signRemovingMintingAdmin(accounts[1], {from: accounts[0]}), "signRemovingMintingAdmin");
+        await printGasUsage(token.signRemovingIDPAdmin(accounts[1], {from: accounts[0]}), "signRemovingIDPAdmin");
+        await printGasUsage(token.signRemovingRestrAdmin(accounts[1], {from: accounts[0]}), "signRemovingRestrAdmin");
+        await printGasUsage(token.signRevoke(accounts[1], {from: accounts[0]}), "signRevoke");
+        await printGasUsage(token.signApprove(accounts[1], {from: accounts[0]}), "signApprove");
+        await printGasUsage(token.signRemovingIDP(IDP1Address, {from: accounts[0]}), "signRemovingIDP");
+    });
+});
